@@ -1,4 +1,4 @@
-package studentPortal;
+package studentPortal.Entity;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +30,7 @@ public class Professor {
 
 	  Professor() {}
 
-	  Professor(String name, String designation) {
+	  public Professor(String name, String designation) {
 
 	    this.name = name;
 	    this.designation = designation;

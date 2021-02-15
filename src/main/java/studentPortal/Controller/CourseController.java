@@ -1,8 +1,11 @@
 package studentPortal.Controller;
-import studentPortal.Course;
-import studentPortal.CourseModelAssembler;
-import studentPortal.CourseRepository;
-import studentPortal.ProfessorRepository;
+import studentPortal.Entity.Course;
+import studentPortal.Exception.CourseNotFoundException;
+import studentPortal.Exception.ProfessorNotFoundException;
+import studentPortal.Exception.ResourseNotFoundException;
+import studentPortal.ModelAssembler.CourseModelAssembler;
+import studentPortal.Repository.CourseRepository;
+import studentPortal.Repository.ProfessorRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,8 +97,9 @@ public class CourseController {
 	  
 
 	  @PostMapping("/courses")
-	  Course newCourse(@RequestBody Course newCourse) {
-	    return repository.save(newCourse);
+	  EntityModel<Course> newCourse(@RequestBody Course newCourse) {
+		Course returnCourse = repository.save(newCourse);
+		return courseAssembler.toModel(returnCourse);
 	  }
 
 	  // Single item
@@ -110,9 +114,9 @@ public class CourseController {
 	  }
 
 	  @PutMapping("/courses/{id}")
-	  Course replaceCourse(@RequestBody Course newCourse, @PathVariable Long id) {
+	  EntityModel<Course> replaceCourse(@RequestBody Course newCourse, @PathVariable Long id) {
 	    
-	    return repository.findById(id)
+	    Course returnCourse = repository.findById(id)
 	      .map(course -> {
 	        course.setName(newCourse.getName());
 	        course.setStartDate(newCourse.getStartDate());
@@ -123,6 +127,7 @@ public class CourseController {
 	    	  newCourse.setId(id);
 	        return repository.save(newCourse);
 	      });
+	    return courseAssembler.toModel(returnCourse);
 	  }
 
 	  @DeleteMapping("/courses/{id}")

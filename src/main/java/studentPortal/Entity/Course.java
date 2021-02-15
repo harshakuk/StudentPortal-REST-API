@@ -1,4 +1,4 @@
-package studentPortal;
+package studentPortal.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class Course {
 
   Course() {}
 
-  Course(String name, String startDate, String endDate) {
+  public Course(String name, String startDate, String endDate) {
 
     this.name = name;
     this.startDate = startDate;

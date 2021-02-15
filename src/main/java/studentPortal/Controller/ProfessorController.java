@@ -1,8 +1,13 @@
 package studentPortal.Controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
-
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,45 +16,55 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import studentPortal.Professor;
-import studentPortal.ProfessorRepository;
+import studentPortal.Entity.Professor;
+import studentPortal.Exception.CourseNotFoundException;
+import studentPortal.ModelAssembler.ProfessorModelAssembler;
+import studentPortal.Repository.ProfessorRepository;
 
 @RestController
 public class ProfessorController {
 	
 	private final ProfessorRepository repository;
+	private ProfessorModelAssembler professorAssembler;
 
-	ProfessorController(ProfessorRepository repository) {
+	ProfessorController(ProfessorRepository repository,ProfessorModelAssembler professorAssembler) {
 	    this.repository = repository;
+	    this.professorAssembler = professorAssembler;
 	  }
 
 
 	  // Aggregate root
 	  // tag::get-aggregate-root[]
 	  @GetMapping("/professors")
-	  List<Professor> all() {
-	    return repository.findAll();
+	  public CollectionModel<EntityModel<Professor>> all() {
+		List<EntityModel<Professor>> professors = repository.findAll().stream() //
+				      .map(professorAssembler::toModel) //
+				      .collect(Collectors.toList());
+
+		return CollectionModel.of(professors, linkTo(methodOn(ProfessorController.class).all()).withSelfRel());
 	  }
 	  // end::get-aggregate-root[]
 
 	  @PostMapping("/professors")
-	  Professor newProfessor(@RequestBody Professor newProfessor) {
-	    return repository.save(newProfessor);
+	  EntityModel<Professor> newProfessor(@RequestBody Professor newProfessor) {
+		  Professor returnProfessor = repository.save(newProfessor);
+		  return professorAssembler.toModel(returnProfessor);
 	  }
 
 	  // Single item
 	  
 	  @GetMapping("/professors/{id}")
-	  Professor one(@PathVariable Long id) {
+	  public EntityModel<Professor> one(@PathVariable Long id) {
 	    
-	    return repository.findById(id)
+		  Professor returnProfessor = repository.findById(id)
 	      .orElseThrow(() -> new CourseNotFoundException(id));
+		  return professorAssembler.toModel(returnProfessor);
 	  }
 
 	  @PutMapping("/professors/{id}")
-	  Professor replaceProfessor(@RequestBody Professor newProfessor, @PathVariable Long id) {
+	  EntityModel<Professor> replaceProfessor(@RequestBody Professor newProfessor, @PathVariable Long id) {
 	    
-	    return repository.findById(id)
+		  Professor returnProfessor = repository.findById(id)
 	      .map(professor -> {
 	    	professor.setName(newProfessor.getName());
 	    	professor.setDesignation(newProfessor.getDesignation());
@@ -59,6 +74,7 @@ public class ProfessorController {
 	    	  newProfessor.setId(id);
 	        return repository.save(newProfessor);
 	      });
+		  return professorAssembler.toModel(returnProfessor);
 	  }
 
 	  @DeleteMapping("/professors/{id}")

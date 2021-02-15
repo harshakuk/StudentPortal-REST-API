@@ -1,4 +1,4 @@
-package studentPortal;
+package studentPortal.Entity;
 
 import java.util.Objects;
 

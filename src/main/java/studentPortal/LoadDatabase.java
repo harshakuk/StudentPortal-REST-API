@@ -8,6 +8,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import studentPortal.Entity.Course;
+import studentPortal.Entity.Professor;
+import studentPortal.Repository.CourseRepository;
+import studentPortal.Repository.ProfessorRepository;
+
 @Configuration
 public class LoadDatabase {
 	
